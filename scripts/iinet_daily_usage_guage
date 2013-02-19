@@ -86,7 +86,7 @@ contents.each_line do |line|
     end
 
     if line =~ /anytime/
-      offpeak = line.scan(/\">(\d+)</)[0][0]
+      anytime = line.scan(/\">(\d+)</)[0][0]
     end
 
     if line =~ /freezone/
@@ -106,5 +106,5 @@ end
 puts "peak.value #{peak}"
 puts "offpeak.value #{offpeak}"
 puts "freezone.value #{freezone}"
-puts "anytime.value #{freezone}"
+puts "anytime.value #{anytime}"
 

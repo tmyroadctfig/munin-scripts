@@ -81,7 +81,7 @@ contents.each_line do |line|
   end
 
   if line =~ /classification=\"anytime\"/
-    offpeak = line.scan(/used=\"(\d+)\"/)[0][0]
+    anytime = line.scan(/used=\"(\d+)\"/)[0][0]
   end
 
   if line =~ /classification=\"freezone\"/
