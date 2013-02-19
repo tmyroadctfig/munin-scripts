@@ -30,6 +30,9 @@ if ARGV[0] == "config"
   puts "offpeak.label Off Peak Usage"
   puts "offpeak.draw LINE1"
 
+  puts "anytime.label Anytime Usage"
+  puts "anytime.draw LINE1"
+
   puts "freezone.label Freezone Usage"
   puts "freezone.draw LINE1"
 
@@ -57,6 +60,7 @@ end
 if contents =~ /<error>/
   puts "peak.value U"
   puts "offpeak.value U"
+  puts "anytime.value U"
   puts "freezone.value U"
   exit
 end
@@ -65,6 +69,7 @@ end
 peak = "U"
 offpeak = "U"
 freezone = "U"
+anytime = "U"
 
 contents.each_line do |line|
   if line =~ /classification=\"peak\"/
@@ -72,6 +77,10 @@ contents.each_line do |line|
   end
 
   if line =~ /classification=\"offpeak\"/
+    offpeak = line.scan(/used=\"(\d+)\"/)[0][0]
+  end
+
+  if line =~ /classification=\"anytime\"/
     offpeak = line.scan(/used=\"(\d+)\"/)[0][0]
   end
 
@@ -83,4 +92,5 @@ end
 puts "peak.value #{peak}"
 puts "offpeak.value #{offpeak}"
 puts "freezone.value #{freezone}"
+puts "anytime.value #{anytime}"
 
