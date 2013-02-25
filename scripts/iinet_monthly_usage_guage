@@ -25,16 +25,19 @@ if ARGV[0] == "config"
   puts "graph_category network"
 
   puts "peak.label Peak Usage"
-  puts "peak.draw LINE1"
+  puts "peak.draw AREA"
 
   puts "offpeak.label Off Peak Usage"
-  puts "offpeak.draw LINE1"
+  puts "offpeak.draw AREA"
 
   puts "anytime.label Anytime Usage"
-  puts "anytime.draw LINE1"
+  puts "anytime.draw AREA"
+
+  puts "uploads.label Uploads Usage"
+  puts "uploads.draw AREA"
 
   puts "freezone.label Freezone Usage"
-  puts "freezone.draw LINE1"
+  puts "freezone.draw AREA"
 
   exit
 end
@@ -61,6 +64,7 @@ if contents =~ /<error>/
   puts "peak.value U"
   puts "offpeak.value U"
   puts "anytime.value U"
+  puts "uploads.value U"
   puts "freezone.value U"
   exit
 end
@@ -70,6 +74,7 @@ peak = "U"
 offpeak = "U"
 freezone = "U"
 anytime = "U"
+uploads = "U"
 
 contents.each_line do |line|
   if line =~ /classification=\"peak\"/
@@ -84,6 +89,10 @@ contents.each_line do |line|
     anytime = line.scan(/used=\"(\d+)\"/)[0][0]
   end
 
+  if line =~ /classification=\"uploads\"/
+    uploads = line.scan(/used=\"(\d+)\"/)[0][0]
+  end
+
   if line =~ /classification=\"freezone\"/
     freezone = line.scan(/used=\"(\d+)\"/)[0][0]
   end
@@ -93,4 +102,5 @@ puts "peak.value #{peak}"
 puts "offpeak.value #{offpeak}"
 puts "freezone.value #{freezone}"
 puts "anytime.value #{anytime}"
+puts "uploads.value #{uploads}"
 
