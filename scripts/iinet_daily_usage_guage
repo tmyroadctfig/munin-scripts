@@ -1,0 +1,120 @@
+#!/usr/bin/ruby
+
+# Copyright 2013 Luke Quinane
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+require 'open-uri'
+
+username = ""
+password = ""
+xml_cache = "/var/lib/munin/state/iinet_usage_cache"
+
+if ARGV[0] == "config"
+  puts "graph_title iinet Daily Usage"
+  puts "graph_category network"
+
+  puts "peak.label Peak Usage"
+  puts "peak.draw AREA"
+
+  puts "offpeak.label Off Peak Usage"
+  puts "offpeak.draw STACK"
+
+  puts "anytime.label Anytime Usage"
+  puts "anytime.draw STACK"
+
+  puts "uploads.label Uploads Usage"
+  puts "uploads.draw STACK"
+
+  puts "freezone.label Freezone Usage"
+  puts "freezone.draw STACK"
+
+  exit
+end
+
+mtime = Time.now
+if File.file?(xml_cache)
+  mtime = File.mtime(xml_cache)
+end
+
+age = Time.now - mtime
+
+# cache for 20 minutes
+if age < 20 * 60
+  contents = open(xml_cache) { |f| f.read }
+else
+  # cache out of date, fetch from the web
+  url = "https://toolbox.iinet.net.au/cgi-bin/new/volume_usage_xml.cgi?action=login&username=#{username}&password=#{password}"
+
+  contents = open(url) { |f| f.read }
+  File.open(xml_cache, "w") { |f| f.write(contents) }
+end
+
+if contents =~ /<error>/
+  puts "peak.value U"
+  puts "offpeak.value U"
+  puts "anytime.value U"
+  puts "uploads.value U"
+  puts "freezone.value U"
+  exit
+end
+
+today = DateTime.now.strftime("%Y-%m-%d")
+regex = "<day_hour period=\"#{today}\">"
+
+# some dodgy XML parsing:
+found_today = false
+peak = "U"
+offpeak = "U"
+freezone = "U"
+anytime = "U"
+uploads = "U"
+
+contents.each_line do |line|
+  if found_today
+    if line =~ /\"peak\"/
+      peak = line.scan(/\">(\d+)</)[0][0]
+    end
+
+    if line =~ /offpeak/
+      offpeak = line.scan(/\">(\d+)</)[0][0]
+    end
+
+    if line =~ /anytime/
+      anytime = line.scan(/\">(\d+)</)[0][0]
+    end
+
+    if line =~ /uploads/
+      uploads = line.scan(/\">(\d+)</)[0][0]
+    end
+
+    if line =~ /freezone/
+      freezone = line.scan(/\">(\d+)</)[0][0]
+    end
+
+    if line =~ /<day_hour period/
+      break
+    end
+  end
+  
+  if line =~ /#{regex}/
+    found_today = true
+  end
+end
+
+puts "peak.value #{peak}"
+puts "offpeak.value #{offpeak}"
+puts "freezone.value #{freezone}"
+puts "anytime.value #{anytime}"
+puts "uploads.value #{uploads}"
+
