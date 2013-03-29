@@ -28,16 +28,16 @@ if ARGV[0] == "config"
   puts "peak.draw AREA"
 
   puts "offpeak.label Off Peak Usage"
-  puts "offpeak.draw AREA"
+  puts "offpeak.draw STACK"
 
   puts "anytime.label Anytime Usage"
-  puts "anytime.draw AREA"
+  puts "anytime.draw STACK"
 
   puts "uploads.label Uploads Usage"
-  puts "uploads.draw AREA"
+  puts "uploads.draw STACK"
 
   puts "freezone.label Freezone Usage"
-  puts "freezone.draw AREA"
+  puts "freezone.draw STACK"
 
   exit
 end
